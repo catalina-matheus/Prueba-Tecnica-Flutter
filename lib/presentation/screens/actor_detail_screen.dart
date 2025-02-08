@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_technical_test_catalina/presentation/bloc/actor_detail/actor_bloc.dart';
 import 'package:flutter_technical_test_catalina/presentation/bloc/actor_detail/actor_state.dart';
+import 'package:go_router/go_router.dart';
 import '../widgets/widgets.dart' as customWidgets;
 import '../../config/theme/app_theme.dart';
 
@@ -95,8 +96,8 @@ class ActorDetailScreen extends StatelessWidget {
                                 "${(movie.voteAverage * 10).toInt()}% User Score",
                             imageUrl: movie.posterPath.isNotEmpty
                                 ? "https://image.tmdb.org/t/p/w500${movie.posterPath}"
-                                : "https://via.placeholder.com/300",
-                            onTap: () {},
+                                : "https://cdn-icons-png.flaticon.com/512/3938/3938627.png",
+                            onTap: () => context.push('/detail/${movie.id}'),
                           );
                         },
                       ),

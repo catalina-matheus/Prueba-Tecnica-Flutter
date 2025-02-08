@@ -111,7 +111,7 @@ class MovieDetailScreen extends StatelessWidget {
                                       subtitle: actor.character,
                                       imageUrl: actor.profilePath.isNotEmpty
                                           ? "https://image.tmdb.org/t/p/w500${actor.profilePath}"
-                                          : "https://via.placeholder.com/150",
+                                          : "https://cdn-icons-png.flaticon.com/512/2815/2815428.png",
                                       onTap: () => context.push(
                                         '/profile/${actor.id}',
                                       ),
