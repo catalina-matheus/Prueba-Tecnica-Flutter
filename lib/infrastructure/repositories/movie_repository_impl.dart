@@ -2,23 +2,18 @@ import 'package:dio/dio.dart';
 import 'package:flutter_technical_test_catalina/config/constants/environment.dart';
 import 'package:flutter_technical_test_catalina/domain/entities/actor.dart';
 import 'package:flutter_technical_test_catalina/domain/entities/movie.dart';
+import 'package:flutter_technical_test_catalina/infrastructure/datasources/tmdb_remote_datasource.dart';
 import 'package:flutter_technical_test_catalina/infrastructure/repositories/movie_repository.dart';
 
 class MovieRepositoryImpl implements MovieRepository {
-  final Dio dio = Dio(
-    BaseOptions(
-      baseUrl: 'https://api.themoviedb.org/3',
-      headers: {
-        'Authorization': 'Bearer ${Environment.theMovieDbKey}',
-        'Content-Type': 'application/json;charset=utf-8',
-      },
-    ),
-  );
+  final TMDBRemoteDataSource dataSources;
+
+  MovieRepositoryImpl(this.dataSources);
 
   @override
   Future<Actor> getActorById(int actorId) async {
     try {
-      final response = await dio.get(
+      final response = await dataSources.dio.get(
         '/person/${actorId.toString()}',
         queryParameters: {'append_to_response': 'movie_credits'},
       );
@@ -45,8 +40,8 @@ class MovieRepositoryImpl implements MovieRepository {
   @override
   Future<List<Movie>> getMoviesByActorId(int actorId) async {
     try {
-      final response =
-          await dio.get('/person/${actorId.toString()}/movie_credits');
+      final response = await dataSources.dio
+          .get('/person/${actorId.toString()}/movie_credits');
 
       if (response.statusCode == 200) {
         return (response.data['cast'] as List)
@@ -62,8 +57,8 @@ class MovieRepositoryImpl implements MovieRepository {
   @override
   Future<List<Movie>> getNowPlaying({int page = 1}) async {
     try {
-      final response =
-          await dio.get('/movie/now_playing', queryParameters: {'page': page});
+      final response = await dataSources.dio
+          .get('/movie/now_playing', queryParameters: {'page': page});
 
       if (response.statusCode == 200) {
         return (response.data['results'] as List)
@@ -79,13 +74,13 @@ class MovieRepositoryImpl implements MovieRepository {
   @override
   Future<Movie> getMovieById(String id) async {
     try {
-      final response = await dio.get('/movie/$id',
+      final response = await dataSources.dio.get('/movie/$id',
           queryParameters: {'append_to_response': 'credits'});
 
       Movie movie = Movie.fromJson(response.data);
 
       if (response.data['credits'] == null) {
-        final creditsResponse = await dio.get('/movie/$id/credits');
+        final creditsResponse = await dataSources.dio.get('/movie/$id/credits');
         movie.cast = (creditsResponse.data['cast'] as List<dynamic>?)
                 ?.map((actorJson) => Actor.fromJson(actorJson))
                 .toList() ??
@@ -106,7 +101,7 @@ class MovieRepositoryImpl implements MovieRepository {
   @override
   Future<List<Movie>> getPopular() async {
     try {
-      final response = await dio.get('/movie/popular');
+      final response = await dataSources.dio.get('/movie/popular');
 
       if (response.statusCode == 200) {
         return (response.data['results'] as List)
@@ -122,7 +117,7 @@ class MovieRepositoryImpl implements MovieRepository {
   @override
   Future<List<Movie>> getTopRated() async {
     try {
-      final response = await dio.get('/movie/top_rated');
+      final response = await dataSources.dio.get('/movie/top_rated');
 
       if (response.statusCode == 200) {
         return (response.data['results'] as List)
@@ -138,7 +133,7 @@ class MovieRepositoryImpl implements MovieRepository {
   @override
   Future<List<Movie>> getUpcoming() async {
     try {
-      final response = await dio.get('/movie/upcoming');
+      final response = await dataSources.dio.get('/movie/upcoming');
 
       if (response.statusCode == 200) {
         return (response.data['results'] as List)
@@ -154,8 +149,8 @@ class MovieRepositoryImpl implements MovieRepository {
   @override
   Future<List<Movie>> searchMovies(String query) async {
     try {
-      final response =
-          await dio.get('/search/movie', queryParameters: {'query': query});
+      final response = await dataSources.dio
+          .get('/search/movie', queryParameters: {'query': query});
 
       if (response.statusCode == 200) {
         return (response.data['results'] as List)
