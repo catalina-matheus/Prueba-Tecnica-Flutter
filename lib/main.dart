@@ -4,6 +4,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_technical_test_catalina/config/router/app_router.dart';
 import 'package:flutter_technical_test_catalina/config/theme/app_theme.dart';
 import 'package:flutter_technical_test_catalina/config/theme/cubit/theme_cubit.dart';
+import 'package:flutter_technical_test_catalina/infrastructure/datasources/tmdb_remote_datasource.dart';
 import 'package:flutter_technical_test_catalina/infrastructure/repositories/movie_repository_impl.dart';
 import 'package:flutter_technical_test_catalina/presentation/bloc/home/home_bloc.dart';
 import 'package:flutter_technical_test_catalina/presentation/bloc/home/home_event.dart';
@@ -11,8 +12,8 @@ import 'package:flutter_technical_test_catalina/presentation/bloc/home/home_even
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
-
-  final movieRepository = MovieRepositoryImpl();
+  final TMDBRemoteDataSource remoteDataSource = TMDBRemoteDataSource();
+  final movieRepository = MovieRepositoryImpl(remoteDataSource);
 
   runApp(
     MultiRepositoryProvider(
