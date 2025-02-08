@@ -23,7 +23,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         state is HomeLoaded ? (state as HomeLoaded).movies : [];
 
     try {
-      final newMovies = await movieRepository.getNowPlaying(page: _currentPage);
+      final newMovies = await movieRepository.getPopular();
 
       if (newMovies.isNotEmpty) {
         _currentPage++;

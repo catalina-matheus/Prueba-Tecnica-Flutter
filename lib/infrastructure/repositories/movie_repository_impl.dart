@@ -1,5 +1,3 @@
-import 'package:dio/dio.dart';
-import 'package:flutter_technical_test_catalina/config/constants/environment.dart';
 import 'package:flutter_technical_test_catalina/domain/entities/actor.dart';
 import 'package:flutter_technical_test_catalina/domain/entities/movie.dart';
 import 'package:flutter_technical_test_catalina/infrastructure/datasources/tmdb_remote_datasource.dart';
@@ -55,23 +53,6 @@ class MovieRepositoryImpl implements MovieRepository {
   }
 
   @override
-  Future<List<Movie>> getNowPlaying({int page = 1}) async {
-    try {
-      final response = await dataSources.dio
-          .get('/movie/now_playing', queryParameters: {'page': page});
-
-      if (response.statusCode == 200) {
-        return (response.data['results'] as List)
-            .map<Movie>((json) => Movie.fromJson(json))
-            .toList();
-      }
-      throw Exception("Error fetching now playing movies");
-    } catch (e) {
-      throw Exception("Error fetching now playing movies: $e");
-    }
-  }
-
-  @override
   Future<Movie> getMovieById(String id) async {
     try {
       final response = await dataSources.dio.get('/movie/$id',
@@ -111,55 +92,6 @@ class MovieRepositoryImpl implements MovieRepository {
       throw Exception("Error fetching popular movies");
     } catch (e) {
       throw Exception("Error fetching popular movies: $e");
-    }
-  }
-
-  @override
-  Future<List<Movie>> getTopRated() async {
-    try {
-      final response = await dataSources.dio.get('/movie/top_rated');
-
-      if (response.statusCode == 200) {
-        return (response.data['results'] as List)
-            .map<Movie>((json) => Movie.fromJson(json))
-            .toList();
-      }
-      throw Exception("Error fetching top-rated movies");
-    } catch (e) {
-      throw Exception("Error fetching top-rated movies: $e");
-    }
-  }
-
-  @override
-  Future<List<Movie>> getUpcoming() async {
-    try {
-      final response = await dataSources.dio.get('/movie/upcoming');
-
-      if (response.statusCode == 200) {
-        return (response.data['results'] as List)
-            .map<Movie>((json) => Movie.fromJson(json))
-            .toList();
-      }
-      throw Exception("Error fetching upcoming movies");
-    } catch (e) {
-      throw Exception("Error fetching upcoming movies: $e");
-    }
-  }
-
-  @override
-  Future<List<Movie>> searchMovies(String query) async {
-    try {
-      final response = await dataSources.dio
-          .get('/search/movie', queryParameters: {'query': query});
-
-      if (response.statusCode == 200) {
-        return (response.data['results'] as List)
-            .map<Movie>((json) => Movie.fromJson(json))
-            .toList();
-      }
-      throw Exception("Error searching movies");
-    } catch (e) {
-      throw Exception("Error searching movies: $e");
     }
   }
 }
