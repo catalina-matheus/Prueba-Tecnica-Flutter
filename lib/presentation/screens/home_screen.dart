@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:go_router/go_router.dart';
 import '../../config/theme/app_theme.dart';
 import '../../config/theme/cubit/theme_cubit.dart';
@@ -76,82 +77,92 @@ class _HomeScreenState extends State<HomeScreen> {
             }
 
             if (state is HomeError) {
-              return Center(
-                  child: Text("Error: ${state.message}",
-                      style: TextStyle(color: appTheme.textColor)));
+              return _buildErrorState(state, appTheme);
             }
 
             if (state is HomeLoaded) {
-              final movies = state.movies;
-
-              return NotificationListener<ScrollNotification>(
-                onNotification: (ScrollNotification scrollInfo) {
-                  if (scrollInfo.metrics.pixels >=
-                          scrollInfo.metrics.maxScrollExtent - 100 &&
-                      state.hasMore) {
-                    context.read<HomeBloc>().add(FetchMovies());
-                  }
-                  return false;
-                },
-                child: ShaderMask(
-                  shaderCallback: (Rect bounds) {
-                    return LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.transparent,
-                        Colors.black.withOpacity(0.1)
-                      ],
-                      stops: [0.9, 1.0],
-                    ).createShader(bounds);
-                  },
-                  blendMode: BlendMode.dstOut,
-                  child: GridView.builder(
-                    controller: _scrollController,
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: screenWidth > 600 ? 3 : 2,
-                      crossAxisSpacing: 14,
-                      mainAxisSpacing: 14,
-                      childAspectRatio: 0.7,
-                    ),
-                    itemCount: movies.length + (state.hasMore ? 1 : 0),
-                    itemBuilder: (context, index) {
-                      if (index == movies.length) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-
-                      final movie = movies[index];
-
-                      final bool isRightColumn = index % 2 != 0;
-
-                      return Container(
-                        margin:
-                            EdgeInsets.only(top: isRightColumn ? 30.0 : 0.0),
-                        child: UniversalCard(
-                          title: movie.title,
-                          subtitle:
-                              "${(movie.voteAverage * 10).toStringAsFixed(0)}% User Score",
-                          imageUrl: movie.posterPath.isNotEmpty
-                              ? "https://image.tmdb.org/t/p/w500${movie.posterPath}"
-                              : "https://via.placeholder.com/300",
-                          onTap: () => context.push('/detail/${movie.id}'),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              );
+              return _buildLoadedState(state, context, appTheme, screenWidth);
             }
 
-            return Center(
-              child: Text(
-                "No movies available",
-                style: TextStyle(color: appTheme.textColor),
+            return _buildNoMoviesAvailable(appTheme);
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorState(HomeError state, AppTheme appTheme) {
+    return Center(
+      child: Text(
+        "Error: ${state.message}",
+        style: TextStyle(color: appTheme.textColor),
+      ),
+    );
+  }
+
+  Widget _buildLoadedState(HomeLoaded state, BuildContext context,
+      AppTheme appTheme, double screenWidth) {
+    final movies = state.movies;
+
+    return NotificationListener<ScrollNotification>(
+      onNotification: (ScrollNotification scrollInfo) {
+        if (scrollInfo.metrics.pixels >=
+                scrollInfo.metrics.maxScrollExtent - 100 &&
+            state.hasMore) {
+          context.read<HomeBloc>().add(FetchMovies());
+        }
+        return false;
+      },
+      child: ShaderMask(
+        shaderCallback: (Rect bounds) {
+          return LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.transparent, Colors.black.withOpacity(0.1)],
+            stops: [0.9, 1.0],
+          ).createShader(bounds);
+        },
+        blendMode: BlendMode.dstOut,
+        child: MasonryGridView.count(
+          controller: _scrollController,
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          crossAxisCount: screenWidth > 600 ? 3 : 2,
+          itemCount: movies.length + (state.hasMore ? 1 : 0),
+          itemBuilder: (context, index) {
+            if (index == movies.length) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            final movie = movies[index];
+
+            return Container(
+              margin: EdgeInsets.only(top: index % 2 == 0 ? 0 : 30),
+              child: SizedBox(
+                height: 300, // Ajusta la altura según sea necesario
+                child: UniversalCard(
+                  title: movie.title,
+                  subtitle:
+                      "${(movie.voteAverage * 10).toStringAsFixed(0)}% User Score",
+                  imageUrl: movie.posterPath.isNotEmpty
+                      ? "https://image.tmdb.org/t/p/w500${movie.posterPath}"
+                      : "https://cdn-icons-png.flaticon.com/512/3938/3938627.png",
+                  onTap: () => context.push('/detail/${movie.id}'),
+                ),
               ),
             );
           },
+          mainAxisSpacing: 14,
+          crossAxisSpacing: 14,
         ),
+      ),
+    );
+  }
+
+  Widget _buildNoMoviesAvailable(AppTheme appTheme) {
+    return Center(
+      child: Text(
+        "No movies available",
+        style: TextStyle(color: appTheme.textColor),
       ),
     );
   }
