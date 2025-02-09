@@ -43,6 +43,10 @@ class AppTheme {
           bodyMedium: TextStyle(fontSize: 16, color: textColor),
           titleLarge: TextStyle(
               fontSize: 20, fontWeight: FontWeight.bold, color: textColor),
+          headlineLarge: TextStyle(
+              fontSize: 34, fontWeight: FontWeight.bold, color: textColor),
+          headlineSmall: TextStyle(
+              fontSize: 24, fontWeight: FontWeight.bold, color: textColor),
         ),
         cardColor:
             brightness == Brightness.dark ? Colors.grey[900] : Colors.white,
